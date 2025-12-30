@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './context/AuthContext'
 import { Landing } from './pages/Landing'
 import { Onboarding } from './pages/Onboarding'
@@ -30,6 +31,7 @@ function App() {
             },
           }}
         />
+        <Analytics />
       </AuthProvider>
     </BrowserRouter>
   )
