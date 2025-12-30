@@ -108,7 +108,7 @@ export function Terms() {
             <h2 className="text-xl font-semibold text-white mb-4">10. Contact</h2>
             <p>
               Questions about these Terms? Contact us at{' '}
-              <a href="mailto:support@tryshipmates.com" className="text-brand-400 hover:text-brand-300">
+              <a href="mailto:support@tryshipmates.vercel.app" className="text-brand-400 hover:text-brand-300">
                 support@tryshipmates.com
               </a>
             </p>

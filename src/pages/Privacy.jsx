@@ -67,7 +67,7 @@ export function Privacy() {
               <li>Export your data</li>
             </ul>
             <p className="mt-4">
-              To exercise these rights, please contact us at privacy@tryshipmates.com
+              To exercise these rights, please contact us at privacy@tryshipmates.vercel.app
             </p>
           </section>
 
