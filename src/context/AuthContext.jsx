@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+﻿import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -108,6 +108,60 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  async function deleteAccount() {
+    if (!user) return { error: 'No user' }
+
+    try {
+      // Delete profile data first
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id)
+
+      if (profileError) {
+        console.error('Error deleting profile:', profileError)
+        return { error: profileError }
+      }
+
+      // Delete matches where user is involved
+      await supabase
+        .from('matches')
+        .delete()
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+
+      // Delete swipes
+      await supabase
+        .from('swipes')
+        .delete()
+        .or(`swiper_id.eq.${user.id},swiped_id.eq.${user.id}`)
+
+      // Delete messages
+      await supabase
+        .from('messages')
+        .delete()
+        .eq('sender_id', user.id)
+
+      // Delete blocks and reports
+      await supabase
+        .from('blocks')
+        .delete()
+        .or(`blocker_id.eq.${user.id},blocked_id.eq.${user.id}`)
+
+      await supabase
+        .from('reports')
+        .delete()
+        .eq('reporter_id', user.id)
+
+      // Sign out the user (auth deletion requires admin API)
+      await signOut()
+
+      return { success: true }
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      return { error: error.message }
+    }
+  }
+
   const value = {
     user,
     profile,
@@ -117,6 +171,7 @@ export function AuthProvider({ children }) {
     signIn,
     signOut,
     updateProfile,
+    deleteAccount,
     refreshProfile: () => user && fetchProfile(user.id),
   }
 

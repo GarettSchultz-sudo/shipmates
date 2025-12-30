@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, Send, Flag } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useMessages } from '../hooks/useMessages'
 import { Avatar } from './Avatar'
 import { Button } from './Button'
+import { ReportModal } from './ReportModal'
 import { formatTimestamp } from '../lib/utils'
 
 export function ChatWindow({ match, onBack }) {
@@ -12,6 +13,7 @@ export function ChatWindow({ match, onBack }) {
   const { messages, loading, sendMessage } = useMessages(match?.id)
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [showReport, setShowReport] = useState(false)
   const messagesEndRef = useRef(null)
 
   const otherUser = match?.otherUser
@@ -29,6 +31,12 @@ export function ChatWindow({ match, onBack }) {
     setSending(false)
   }
 
+  const handleReportAction = (action) => {
+    if (action === 'blocked') {
+      onBack()
+    }
+  }
+
   if (!match || !otherUser) return null
 
   return (
@@ -42,10 +50,17 @@ export function ChatWindow({ match, onBack }) {
           <ArrowLeft size={20} />
         </button>
         <Avatar src={otherUser.avatar_url} alt={otherUser.display_name} size="md" />
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold text-white">{otherUser.display_name}</h3>
           <p className="text-sm text-gray-400 truncate">{otherUser.one_liner}</p>
         </div>
+        <button
+          onClick={() => setShowReport(true)}
+          className="p-2 text-gray-400 hover:text-red-400 hover:bg-dark-700 rounded-lg transition-colors"
+          title="Report or block"
+        >
+          <Flag size={18} />
+        </button>
       </div>
 
       {/* Messages */}
@@ -114,6 +129,15 @@ export function ChatWindow({ match, onBack }) {
           </Button>
         </div>
       </div>
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReport}
+        onClose={() => setShowReport(false)}
+        userId={otherUser?.id}
+        userName={otherUser?.display_name}
+        onAction={handleReportAction}
+      />
     </div>
   )
 }

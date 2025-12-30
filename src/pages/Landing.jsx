@@ -278,6 +278,18 @@ export function Landing() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Footer */}
+      <footer className="py-6 border-t border-dark-700">
+        <div className="flex justify-center gap-6 text-sm text-gray-500">
+          <Link to="/privacy" className="hover:text-gray-300">
+            Privacy Policy
+          </Link>
+          <Link to="/terms" className="hover:text-gray-300">
+            Terms of Service
+          </Link>
+        </div>
+      </footer>
     </div>
   )
 }

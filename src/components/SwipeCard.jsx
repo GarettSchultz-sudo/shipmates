@@ -2,9 +2,9 @@ import { motion, useMotionValue, useTransform } from 'framer-motion'
 import { Avatar } from './Avatar'
 import { Tag } from './Tag'
 import { BUILDING_PACE_OPTIONS, LOOKING_FOR_OPTIONS } from '../lib/constants'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Flag } from 'lucide-react'
 
-export function SwipeCard({ profile, onSwipe, style }) {
+export function SwipeCard({ profile, onSwipe, onReport, style }) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-15, 15])
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5])
@@ -50,7 +50,21 @@ export function SwipeCard({ profile, onSwipe, style }) {
       </motion.div>
 
       {/* Card Content */}
-      <div className="bg-dark-800 rounded-2xl border border-dark-600 overflow-hidden">
+      <div className="bg-dark-800 rounded-2xl border border-dark-600 overflow-hidden relative">
+        {/* Report Button */}
+        {onReport && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onReport(profile)
+            }}
+            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-dark-700/80 text-gray-400 hover:text-red-400 hover:bg-dark-600 transition-colors"
+            title="Report or block"
+          >
+            <Flag size={16} />
+          </button>
+        )}
+
         {/* Avatar Section */}
         <div className="bg-gradient-to-br from-brand-600/20 to-purple-600/20 p-8 flex flex-col items-center">
           <Avatar

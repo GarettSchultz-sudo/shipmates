@@ -8,6 +8,7 @@ import { useSwipes } from '../hooks/useSwipes'
 import { Layout } from '../components/Layout'
 import { SwipeCard } from '../components/SwipeCard'
 import { MatchModal } from '../components/MatchModal'
+import { ReportModal } from '../components/ReportModal'
 import { ProfileCardSkeleton } from '../components/Skeleton'
 import { Button } from '../components/Button'
 import toast from 'react-hot-toast'
@@ -20,6 +21,8 @@ export function Swipe() {
   const [matchedUser, setMatchedUser] = useState(null)
   const [matchData, setMatchData] = useState(null)
   const [swiping, setSwiping] = useState(false)
+  const [showReport, setShowReport] = useState(false)
+  const [reportTarget, setReportTarget] = useState(null)
 
   const handleSwipe = useCallback(async (action) => {
     if (!currentProfile || swiping) return
@@ -39,10 +42,21 @@ export function Swipe() {
     setSwiping(false)
   }, [currentProfile, swipe, nextProfile, swiping])
 
+  const handleReport = (profileToReport) => {
+    setReportTarget(profileToReport)
+    setShowReport(true)
+  }
+
+  const handleReportAction = (action) => {
+    if (action === 'blocked') {
+      nextProfile()
+    }
+  }
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (showMatch) return
+      if (showMatch || showReport) return
       if (e.key === 'ArrowLeft') handleSwipe('pass')
       if (e.key === 'ArrowRight') handleSwipe('connect')
       if (e.key === 's' || e.key === 'S') {
@@ -53,7 +67,7 @@ export function Swipe() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleSwipe, showMatch, canSuperConnect])
+  }, [handleSwipe, showMatch, showReport, canSuperConnect])
 
   if (authLoading) {
     return (
@@ -113,6 +127,7 @@ export function Swipe() {
                   key={currentProfile.id}
                   profile={currentProfile}
                   onSwipe={handleSwipe}
+                  onReport={handleReport}
                 />
               )}
             </AnimatePresence>
@@ -173,6 +188,18 @@ export function Swipe() {
         match={matchData}
         otherUser={matchedUser}
         currentUser={profile}
+      />
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={showReport}
+        onClose={() => {
+          setShowReport(false)
+          setReportTarget(null)
+        }}
+        userId={reportTarget?.id}
+        userName={reportTarget?.display_name}
+        onAction={handleReportAction}
       />
     </Layout>
   )
