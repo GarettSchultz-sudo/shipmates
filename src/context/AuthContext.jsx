@@ -64,14 +64,23 @@ export function AuthProvider({ children }) {
     if (error) console.error('Error signing in with GitHub:', error)
   }
 
-  async function signInWithTwitter() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
+  async function signUp(email, password) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        redirectTo: `${window.location.origin}/onboarding`,
+        emailRedirectTo: `${window.location.origin}/onboarding`,
       },
     })
-    if (error) console.error('Error signing in with Twitter:', error)
+    return { data, error }
+  }
+
+  async function signIn(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { data, error }
   }
 
   async function signOut() {
@@ -104,7 +113,8 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     signInWithGitHub,
-    signInWithTwitter,
+    signUp,
+    signIn,
     signOut,
     updateProfile,
     refreshProfile: () => user && fetchProfile(user.id),

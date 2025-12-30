@@ -1,11 +1,20 @@
-import { motion } from 'framer-motion'
-import { Github, Twitter, Users, Rocket, MessageCircle } from 'lucide-react'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Github, Mail, Users, Rocket, MessageCircle, X, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '../components/Button'
+import { Input } from '../components/Input'
 import { Navigate, Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 export function Landing() {
-  const { user, profile, loading, signInWithGitHub, signInWithTwitter } = useAuth()
+  const { user, profile, loading, signInWithGitHub, signUp, signIn } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
 
   if (loading) {
     return (
@@ -21,6 +30,30 @@ export function Landing() {
 
   if (user && !profile) {
     return <Navigate to="/onboarding" replace />
+  }
+
+  const handleEmailAuth = async (e) => {
+    e.preventDefault()
+    setAuthLoading(true)
+
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(email, password)
+        if (error) {
+          toast.error(error.message)
+        } else {
+          toast.success('Check your email to confirm your account!')
+          setShowAuthModal(false)
+        }
+      } else {
+        const { error } = await signIn(email, password)
+        if (error) {
+          toast.error(error.message)
+        }
+      }
+    } finally {
+      setAuthLoading(false)
+    }
   }
 
   const features = [
@@ -101,18 +134,30 @@ export function Landing() {
               Continue with GitHub
             </Button>
             <Button
-              onClick={signInWithTwitter}
+              onClick={() => {
+                setIsSignUp(true)
+                setShowAuthModal(true)
+              }}
               variant="secondary"
               size="lg"
               className="w-full gap-2"
             >
-              <Twitter size={20} />
-              Continue with Twitter
+              <Mail size={20} />
+              Sign up with Email
             </Button>
           </motion.div>
 
           <p className="mt-6 text-sm text-gray-500">
-            Sign in with your builder identity
+            Already have an account?{' '}
+            <button
+              onClick={() => {
+                setIsSignUp(false)
+                setShowAuthModal(true)
+              }}
+              className="text-brand-400 hover:text-brand-300 underline underline-offset-4"
+            >
+              Sign in
+            </button>
           </p>
 
           <Link
@@ -123,6 +168,116 @@ export function Landing() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Auth Modal */}
+      <AnimatePresence>
+        {showAuthModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAuthModal(false)}
+              className="fixed inset-0 bg-black/70 z-40"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-dark-800 rounded-2xl border border-dark-600 p-6 z-50 w-full max-w-md mx-4"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white">
+                  {isSignUp ? 'Create Account' : 'Welcome Back'}
+                </h2>
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleEmailAuth} className="space-y-4">
+                <Input
+                  type="email"
+                  label="Email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    label="Password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-9 text-gray-400 hover:text-white"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={authLoading}
+                >
+                  {authLoading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
+                </Button>
+              </form>
+
+              <div className="mt-4 text-center text-sm text-gray-400">
+                {isSignUp ? (
+                  <>
+                    Already have an account?{' '}
+                    <button
+                      onClick={() => setIsSignUp(false)}
+                      className="text-brand-400 hover:text-brand-300"
+                    >
+                      Sign in
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Need an account?{' '}
+                    <button
+                      onClick={() => setIsSignUp(true)}
+                      className="text-brand-400 hover:text-brand-300"
+                    >
+                      Sign up
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-dark-600">
+                <Button
+                  onClick={() => {
+                    setShowAuthModal(false)
+                    signInWithGitHub()
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="w-full gap-2"
+                >
+                  <Github size={20} />
+                  Continue with GitHub
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
