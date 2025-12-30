@@ -92,7 +92,7 @@ export function Privacy() {
             <p>
               If you have questions about this Privacy Policy, please contact us at{' '}
               <a href="mailto:privacy@tryshipmates.vercel.app" className="text-brand-400 hover:text-brand-300">
-                privacy@tryshipmates.com
+                privacy@tryshipmates.vercel.app
               </a>
             </p>
           </section>

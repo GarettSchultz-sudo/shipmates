@@ -109,7 +109,7 @@ export function Terms() {
             <p>
               Questions about these Terms? Contact us at{' '}
               <a href="mailto:support@tryshipmates.vercel.app" className="text-brand-400 hover:text-brand-300">
-                support@tryshipmates.com
+                support@tryshipmates.vercel.app
               </a>
             </p>
           </section>
