@@ -14,7 +14,7 @@ export function Privacy() {
         </Link>
 
         <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
-        <p className="text-gray-400 mb-8">Last updated: December 2024</p>
+        <p className="text-gray-400 mb-8">Last updated: December 2025</p>
 
         <div className="space-y-8 text-gray-300">
           <section>
